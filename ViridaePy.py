@@ -143,7 +143,7 @@ def GetsGameDetailsForFrontend(fullGameInfo):
     teams = fullGameInfo['teams']
     GameObject.update({ gameId:{'gameDuration':gameDuration, 'participantAccountInfo':participantAccountInfo, 'participants':participants, 'teams':teams}})
     Game_OverWriteDataToFile("GameDTO_GameID_AsKey", GameObject)
-    
+
 # Printers / Writer + Format Helpers
 def QuickPrinter(String_to_Print):
     print(json.dumps(String_to_Print, indent=4, sort_keys=True))
@@ -163,7 +163,9 @@ def Game_OverWriteDataToFile(fileName, data):
     f.close()
     print("Done Writing/OverWriting to file...")
 
-#call Function
+
+#-------------------CALL ORDERS----------
+#    GetAll_AccountIds_ForAllAccountNames -> GetMatches -> GetGameInfoById -> GetsGameDetailsForFrontend (DTO)
 GetAll_AccountIds_ForAllAccountNames(riotApi_GetSummonerInfo_BySummonerName, ScottAccountNameList, apiKey)
 
     # Multiple calls for all Names in ScottAccountNameList!
@@ -172,6 +174,4 @@ GetAll_AccountIds_ForAllAccountNames(riotApi_GetSummonerInfo_BySummonerName, Sco
 #     time.sleep(0.6)
 
 #Call Order
-#    GetSummonerInfo -> GetMatches -> GetGameInfoById -> TODO: Soon save Data
-
 #    GetSummonerInfo -> GetAll_ChampionMasteries...
