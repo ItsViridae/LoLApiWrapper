@@ -142,7 +142,8 @@ def GetsGameDetailsForFrontend(fullGameInfo):
     participants = fullGameInfo['participants']
     teams = fullGameInfo['teams']
     GameObject.update({ gameId:{'gameDuration':gameDuration, 'participantAccountInfo':participantAccountInfo, 'participants':participants, 'teams':teams}})
-    Game_OverWriteDataToFile("GameDTO_GameID_AsKey", GameObject)
+    return GameObject
+    #Game_OverWriteDataToFile("GameDTO_GameID_AsKey", GameObject)
 
 # Printers / Writer + Format Helpers
 def QuickPrinter(String_to_Print):
