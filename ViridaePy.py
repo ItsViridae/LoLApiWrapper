@@ -30,7 +30,6 @@ gameIdList = []
 summonerIdList = []
 matchList = []
 matchesValuesOnlyList = []
-globalCounter = 0
 SummonerInfoDictionary = {}
 
 def MakeApiCall(query):
