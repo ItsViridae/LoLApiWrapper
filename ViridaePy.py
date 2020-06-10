@@ -14,7 +14,7 @@ apiKey = config.api_key
 # Riot Api Endpoints See: Riot Developer Portal
 riotApi_GetSummonerInfo_BySummonerName = "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/"
 riotApi_GetSummonerMatchHistory_BySummonerId = "https://na1.api.riotgames.com/lol/match/v4/matchlists/by-account/"
-riotApi_Get_Matches_GameId = "https://na1.api.riotgames.com/lol/match/v4/matches/"
+riotApi_Get_Matches_ByGameId = "https://na1.api.riotgames.com/lol/match/v4/matches/"
 riotApi_GET_ChampionMasteries_BySummonerId = "https://na1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/"
 
 #Batch Queries
@@ -76,6 +76,9 @@ def GetAll_AccountIds_ForAllAccountNames(domain, ScottAccountNameList, key):
         time.sleep(0.5)
     print(ScottAccountIdList)
     print(summonerIdList)
+    for accountId in ScottAccountIdList:
+        GetMatches(riotApi_GetSummonerMatchHistory_BySummonerId, accountId, apiKey)
+    QuickPrinter("Finished getting all Matches for every Account Id, in ScottAccountIdList... Line:81")
     #GetAll_ChampionMasteries_ForAllAccounts_InAccountIDList(riotApi_GET_ChampionMasteries_BySummonerId, ScottAccountIdList, apiKey)
 
 def GetMatches(domain, accId, key):
@@ -86,7 +89,8 @@ def GetMatches(domain, accId, key):
     for match in summonerMatchInfo["matches"]:                             
         gameIdList.append(match['gameId'])      #gets all Gameid's and adds them to the GameIdList
                                                 #Call GameID and pass ApiCallQuery with the GameIdList
-    GetGameInfoById(riotApi_Get_Matches_GameId, apiKey, gameIdList)
+    Game_OverWriteDataToFile("GameIDList_"accId, gameIdList)
+    #GetGameInfoById(riotApi_Get_Matches_ByGameId, apiKey, gameIdList)
     
 def GetSummonerInfo_Using_SummonerName(domain, key, name):
     queryBuilder = "{0}{1}?api_key={2}"
@@ -114,9 +118,6 @@ def GetSummonerInfo_Using_SummonerName(domain, key, name):
     # for summonerId in summonerIdList:
     #     GetAll_ChampionMasteries_ForOne_SummonerId(riotApi_GET_ChampionMasteries_BySummonerId, summonerId, apiKey)
     # print("finished inserting all Summoner's ChampionMasteries")
-    
-    #GetMatches(riotApi_GetSummonerMatchHistory_BySummonerId, summonerId, apiKey)
-    #GetAll_AccountIds_ForAllAccountNames(riotApi_GetSummonerInfo_BySummonerName, accountIdList, apiKey)
 
 
 def GetGameInfoById(domain, key, gameIdList):
@@ -126,7 +127,8 @@ def GetGameInfoById(domain, key, gameIdList):
     queryBuilder = "{0}{1}?api_key={2}"
     query = queryBuilder.format(domain, gameId, key)
     gameInfo = MakeApiCall(query)
-    Game_OverWriteDataToFile("Game1", gameInfo)
+    #TODO
+    #Game_OverWriteDataToFile("GameId_"gameIdList, gameInfo)
     
     # Printers
 
@@ -150,7 +152,7 @@ def Game_OverWriteDataToFile(fileName, data):
     print("Done Writing/OverWriting to file...")
 
 #call Function
-#GetAll_AccountIds_ForAllAccountNames(riotApi_GetSummonerInfo_BySummonerName, ScottAccountNameList, apiKey)
+GetAll_AccountIds_ForAllAccountNames(riotApi_GetSummonerInfo_BySummonerName, ScottAccountNameList, apiKey)
 
     # Multiple calls for all Names in ScottAccountNameList!
 # for name in ScottAccountNameList:
