@@ -3,22 +3,23 @@ import json
 import time
 import pymongo
 import config
+
 # MongoDb
 client = pymongo.MongoClient(config.mongoConnnectionString)
 db = client['viridaedb']
+
 # Key
 apiKey = config.api_key
 
+# Riot Api Endpoints See: Riot Developer Portal
 riotApi_GetSummonerInfo_BySummonerName = "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/"
 riotApi_GetSummonerMatchHistory_BySummonerId = "https://na1.api.riotgames.com/lol/match/v4/matchlists/by-account/"
 riotApi_Get_Matches_GameId = "https://na1.api.riotgames.com/lol/match/v4/matches/"
 riotApi_GET_ChampionMasteries_BySummonerId = "https://na1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/"
 
-
-
 #Batch Queries
-#SummonerNamesList = ["Learn2Program", "Ali00P", "PorkPounder", "Redmarmalade"]
-ScottAccountNameList = ["Learn2Program", "UsedIgniteOnWeed", "Ali00P"]
+#SummonerNamesList = ["Learn2Program", "Ali00P", "PorkPounder", "Redmarmalade", "LonelySupport"]
+ScottAccountNameList = ["Learn2Program", "UsedIgniteOnWeed", "Ali00P", "PorkPounder", "Redmarmalade", "LonelySupport"]
 ScottAccountIdList = []
 
 #filled probably by a inputbox
@@ -29,6 +30,8 @@ gameIdList = []
 summonerIdList = []
 matchList = []
 matchesValuesOnlyList = []
+globalCounter = 0
+SummonerInfoDictionary = {}
 
 def MakeApiCall(query):
     # Check Limiter for # of Calls 
@@ -41,13 +44,14 @@ def GetAll_ChampionMasteries_ForOne_SummonerId(domain, summId, key):
     queryBuilder = "{0}{1}?api_key={2}"
     query = queryBuilder.format(domain, summId, key)
     championMasteryData = MakeApiCall(query)
-    MongoDbResponse = db.ChampionMastery.insert_one(championMasteryData)
-    print("Successfully Stored into MongoDB... MongoDBResponse: ", MongoDbResponse)
+    Game_OverWriteDataToFile("SummonerId_"+summId, championMasteryData)
+    #MongoDbResponse = db.ChampionMastery.insert_one(championMasteryData)
+    #print("Successfully Stored into MongoDB... MongoDBResponse: ", MongoDbResponse)
     #Pull championId : value
     #Pull championPoints : value        <--MasteryPoints
     #Pull summonerId : value            <-- who it belongs too
 
-def GetAll_ChampionMasteries_ForAllAccounts(domain, listOfAccountId, key):
+def GetAll_ChampionMasteries_ForAllAccounts_InAccountIDList(domain, listOfAccountId, key):
     for accid in listOfAccountId:
         queryBuilder = "{0}{1}?api_key={2}"
         query = queryBuilder.format(domain, accid, key)
@@ -73,7 +77,7 @@ def GetAll_AccountIds_ForAllAccountNames(domain, ScottAccountNameList, key):
         time.sleep(0.5)
     print(ScottAccountIdList)
     print(summonerIdList)
-    #GetAll_ChampionMasteries_ForAllAccounts(riotApi_GET_ChampionMasteries_BySummonerId, ScottAccountIdList, apiKey)
+    #GetAll_ChampionMasteries_ForAllAccounts_InAccountIDList(riotApi_GET_ChampionMasteries_BySummonerId, ScottAccountIdList, apiKey)
 
 def GetMatches(domain, accId, key):
     queryBuilder = "{0}{1}?api_key={2}"
@@ -93,17 +97,24 @@ def GetSummonerInfo_Using_SummonerName(domain, key, name):
     #print("\tSuccessfully Stored One SummonerInfo Into SummonerInfo-Collection... \n\tMongoDbResultResponse: ", mongodbResultResponse)
     # Store Summoner Id for later:
     summonerId = summonerInfo['id']
-    #summonerName = summonerInfo['name']
+    summonerName = summonerInfo['name']
     accountId = summonerInfo['accountId']
-    #summonerLevel = summonerInfo['summonerLevel']
+    summonerLevel = summonerInfo['summonerLevel']
     if summonerId not in summonerIdList:
         summonerIdList.append(summonerId)
     if accountId not in ScottAccountIdList:
         ScottAccountIdList.append(accountId)
-    #GetAll_ChampionMasteries_ForAllAccounts(riotApi_GET_ChampionMasteries_BySummonerId, ScottAccountList, apiKey)
-    for summonerId in summonerIdList:
-        GetAll_ChampionMasteries_ForOne_SummonerId(riotApi_GET_ChampionMasteries_BySummonerId, summonerId, apiKey)
-    print("finished inserting all Summoner's ChampionMasteries")
+    if (summonerId not in SummonerInfoDictionary) or (accountId not in SummonerInfoDictionary) or (summonerLevel not in SummonerInfoDictionary) or (summonerName not in SummonerInfoDictionary):
+        SummonerInfoDictionary.update({'name': summonerName, 'summonerId': summonerId, 'accountId': accountId, 'summonerLevel': summonerLevel})
+    Game_OverWriteDataToFile(summonerName, SummonerInfoDictionary)
+
+    # Using List of AccountID's
+    #GetAll_ChampionMasteries_ForAllAccounts_InAccountIDList(riotApi_GET_ChampionMasteries_BySummonerId, ScottAccountList, apiKey)
+
+    #   Using For-Loop SummonerIDs List, Make API Call Each Iteration
+    # for summonerId in summonerIdList:
+    #     GetAll_ChampionMasteries_ForOne_SummonerId(riotApi_GET_ChampionMasteries_BySummonerId, summonerId, apiKey)
+    # print("finished inserting all Summoner's ChampionMasteries")
     
     #GetMatches(riotApi_GetSummonerMatchHistory_BySummonerId, summonerId, apiKey)
     #GetAll_AccountIds_ForAllAccountNames(riotApi_GetSummonerInfo_BySummonerName, accountIdList, apiKey)
@@ -133,7 +144,7 @@ def AppendDataToFile(fileName, dataToAdd):
     f.close()
     print("Done Appending to file...")
 def Game_OverWriteDataToFile(fileName, data):
-    fName = fileName + ".txt"
+    fName = fileName + ".json"
     f = open(fName, "w")
     f.write(json.dumps(data, indent=4, sort_keys=True))
     f.close()
@@ -141,9 +152,12 @@ def Game_OverWriteDataToFile(fileName, data):
 
 #call Function
 #GetAll_AccountIds_ForAllAccountNames(riotApi_GetSummonerInfo_BySummonerName, ScottAccountNameList, apiKey)
-for name in ScottAccountNameList:
-    GetSummonerInfo_Using_SummonerName(riotApi_GetSummonerInfo_BySummonerName, apiKey, summonerName)
-    time.sleep(0.6)
+
+    # Multiple calls for all Names in ScottAccountNameList!
+# for name in ScottAccountNameList:
+#     GetSummonerInfo_Using_SummonerName(riotApi_GetSummonerInfo_BySummonerName, apiKey, name)
+#     time.sleep(0.6)
+
 
 #Call Order
 #    GetSummonerInfo -> GetMatches -> GetGameInfoById -> TODO: Soon save Data
