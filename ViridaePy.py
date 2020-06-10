@@ -123,17 +123,27 @@ def GetSummonerInfo_Using_SummonerName(domain, key, name):
 
 
 def GetGameInfoById(domain, key, gameIdList):
-    #TODO
-    #get 1 game for Testing
-    gameId = gameIdList[0]
-    #end of testing
-    queryBuilder = "{0}{1}?api_key={2}"
-    query = queryBuilder.format(domain, gameId, key)
-    fullGameInfo = MakeApiCall(query)
-    Game_OverWriteDataToFile("GameId_"+str(gameId)+"_GameNum_0", fullGameInfo)
+    #TODO For each loop this later
+    #get last 10 matches
+    for gameId in gameIdList[:1]:
+        queryBuilder = "{0}{1}?api_key={2}"
+        query = queryBuilder.format(domain, gameId, key)
+        fullGameInfo = MakeApiCall(query)
+        time.sleep(0.4)
+        GetsGameDetailsForFrontend(fullGameInfo)
+    #Game_OverWriteDataToFile("GameId_"+str(gameId)+"_GameNum_0", fullGameInfo)
     
     # Printers
-
+def GetsGameDetailsForFrontend(fullGameInfo):
+    GameObject = {}
+    gameId = fullGameInfo['gameId']
+    gameDuration = fullGameInfo['gameDuration']
+    participantAccountInfo = fullGameInfo['participantIdentities']
+    participants = fullGameInfo['participants']
+    teams = fullGameInfo['teams']
+    GameObject.update({ gameId:{'gameDuration':gameDuration, 'participantAccountInfo':participantAccountInfo, 'participants':participants, 'teams':teams}})
+    Game_OverWriteDataToFile("GameDTO_GameID_AsKey", GameObject)
+    
 # Printers / Writer + Format Helpers
 def QuickPrinter(String_to_Print):
     print(json.dumps(String_to_Print, indent=4, sort_keys=True))
@@ -160,7 +170,6 @@ GetAll_AccountIds_ForAllAccountNames(riotApi_GetSummonerInfo_BySummonerName, Sco
 # for name in ScottAccountNameList:
 #     GetSummonerInfo_Using_SummonerName(riotApi_GetSummonerInfo_BySummonerName, apiKey, name)
 #     time.sleep(0.6)
-
 
 #Call Order
 #    GetSummonerInfo -> GetMatches -> GetGameInfoById -> TODO: Soon save Data
