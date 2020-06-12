@@ -1,31 +1,38 @@
 import flask
-from ViridaePy.py import GetAll_AccountIds_ForAllAccountNames
-
-async def waitOnGameCall():
-
+from flask import json
+from ViridaePy import *
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = False
 
 @app.route('/api/game', methods=['GET'])
-async def gameDetailsDto():
-    gameObject =  ViridaePy.GetAll_AccountIds_ForAllAccountNames() #run Other File
-    return await {'game': gameObject}
+def gameDetailsDto():
+    data = main()
+    response = app.response_class(
+        response = json.dumps(data),
+        status = 200,
+        mimetype='application/json'
+    )
+    return response
+    # gameObject = {}
+    # gameObject.update({main()})
+    # print(type(gameObject))
+    # return make_response(jsonify(gameObject), 200)
 
-@app.errorhandler(404)
-def not_found():
-    """Page not found."""
-    return make_response(render_template("404.html"), 404)
+# @app.errorhandler(404)
+# def not_found():
+#     """Page not found."""
+#     return make_response(render_template("404.html"), 404)
 
-#Error Handling Responses!
-@app.errorhandler(400)
-def bad_request():
-    """Bad request."""
-    return make_response(render_template("400.html"), 400)
+# #Error Handling Responses!
+# @app.errorhandler(400)
+# def bad_request():
+#     """Bad request."""
+#     return make_response(render_template("400.html"), 400)
 
-@app.errorhandler(500)
-def server_error():
-    """Internal server error."""
-    return make_response(render_template("500.html"), 500)
+# @app.errorhandler(500)
+# def server_error():
+#     """Internal server error."""
+#     return make_response(render_template("500.html"), 500)
 
 app.run()

@@ -6,10 +6,12 @@ function App() {
   const [ GameData, setGameData ] = useState()
 
   useEffect(() => {
-    fetch('/api/game').then(response => response.json()).then(data => {
-      console.log(data.game);
-      setGameData(data.game);
-    });
+    fetch('/api/game')
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        setGameData(data);
+      });
   }, []);
 
   return (
