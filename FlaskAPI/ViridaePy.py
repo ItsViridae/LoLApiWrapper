@@ -55,7 +55,7 @@ def GetAll_ChampionMasteries_ForAllAccounts_InAccountIDList(domain, listOfAccoun
         queryBuilder = "{0}{1}?api_key={2}"
         query = queryBuilder.format(domain, accid, key)
         championMasteryData = MakeApiCall(query)
-        result = db.ChampionMastery.insert_one(championMasteryData)
+        #result = db.ChampionMastery.insert_one(championMasteryData)
         print(result)
         print("Successfully added All ChampionMastery from Specific Id", accid)
         time.sleep(0.5)

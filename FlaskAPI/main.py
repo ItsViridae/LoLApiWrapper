@@ -1,11 +1,16 @@
 import flask
+from ViridaePy.py import GetAll_AccountIds_ForAllAccountNames
+
+async def waitOnGameCall():
+
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = False
 
 @app.route('/api/game', methods=['GET'])
-def gameDetailsDto():
-    return {'game': 'your game data'}
+async def gameDetailsDto():
+    gameObject =  ViridaePy.GetAll_AccountIds_ForAllAccountNames() #run Other File
+    return await {'game': gameObject}
 
 @app.errorhandler(404)
 def not_found():
