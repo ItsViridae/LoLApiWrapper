@@ -14,10 +14,6 @@ def gameDetailsDto():
         mimetype='application/json'
     )
     return response
-    # gameObject = {}
-    # gameObject.update({main()})
-    # print(type(gameObject))
-    # return make_response(jsonify(gameObject), 200)
 
 # @app.errorhandler(404)
 # def not_found():
