@@ -130,22 +130,24 @@ def main():
     def GetGameInfoById(domain, key, gameIdList):
         #TODO For each loop this later
         #get last 10 matches
+        ID_Counter = 0 
         for gameId in gameIdList[:1]:
             queryBuilder = "{0}{1}?api_key={2}"
             query = queryBuilder.format(domain, gameId, key)
             fullGameInfo = MakeApiCall(query)
+            ID_Counter += ID_Counter + 1
             time.sleep(0.4)
-            GetsGameDetailsForFrontend(fullGameInfo)
+            GetsGameDetailsForFrontend(fullGameInfo, ID_Counter)
         #Game_OverWriteDataToFile("GameId_"+str(gameId)+"_GameNum_0", fullGameInfo)
         
         # GIVES EVERY GAME FOR SUMMONER
-    def GetsGameDetailsForFrontend(fullGameInfo):
+    def GetsGameDetailsForFrontend(fullGameInfo, counter):
         gameId = fullGameInfo['gameId']
         gameDuration = fullGameInfo['gameDuration']
         participantAccountInfo = fullGameInfo['participantIdentities']
         participants = fullGameInfo['participants']
         teams = fullGameInfo['teams']
-        GameObject.update({ gameId:{'gameDuration':gameDuration, 'participantAccountInfo':participantAccountInfo, 'participants':participants, 'teams':teams}})
+        GameObject.update({'id':counter, 'gameId':gameId, 'gameDuration':gameDuration, 'participantAccountInfo':participantAccountInfo, 'participants':participants, 'teams':teams})
         AllGames.append(GameObject)
         #GIVES EVERY GAME FOR THAT SUMMONER
 
