@@ -5,15 +5,15 @@ from ViridaePy import *
 app = flask.Flask(__name__)
 app.config["DEBUG"] = False
 
-# @app.route('/api/game', methods=['GET'])
-# def gameDetailsDto():
-#     data = main()
-#     response = app.response_class(
-#         response = json.dumps(data),
-#         status = 200,
-#         mimetype='application/json'
-#     )
-#     return response
+@app.route('/api/game', methods=['GET'])
+def gameDetailsDto():
+    data = main()
+    response = app.response_class(
+        response = json.dumps(data),
+        status = 200,
+        mimetype='application/json'
+    )
+    return response
 
 # @app.errorhandler(404)
 # def not_found():
